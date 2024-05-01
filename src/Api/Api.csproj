@@ -9,6 +9,8 @@
 
   <ItemGroup>
     <PackageReference Include="Ardalis.ApiEndpoints" Version="4.1.0" />
+    <PackageReference Include="FluentValidation" Version="11.9.1" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.4">
       <PrivateAssets>all</PrivateAssets>
@@ -19,6 +21,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Bll\Bll.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Controllers\CourseController.Instructor.cs">
+      <DependentUpon>CourseController.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Controllers\CourseController.Student.cs">
+      <DependentUpon>CourseController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>
