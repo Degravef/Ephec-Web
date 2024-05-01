@@ -11,11 +11,6 @@ namespace Bll.Services;
 
 public class TokenService(IJwtConfig config) : ITokenService
 {
-    public static class Claims
-    {
-        public const string Name = "unique_name";
-        public const string Role = "Role";
-    }
 
     public string CreateToken(User user)
     {
@@ -36,7 +31,7 @@ public class TokenService(IJwtConfig config) : ITokenService
         throw new AuthenticationException("Token could not be created");
     }
 
-    public object? GetClaimValue(string jwtToken, string claimType)
+    public string? GetClaimValue(string jwtToken, string claimType)
     {
         JwtSecurityTokenHandler tokenHandler = new();
         JwtSecurityToken? token = tokenHandler.ReadJwtToken(jwtToken);
@@ -49,11 +44,12 @@ public class TokenService(IJwtConfig config) : ITokenService
     {
         List<Claim> claims =
         [
-            new Claim(Claims.Name, user.Username)
+            new Claim(ITokenService.Claims.Id, user.Id.ToString()),
+            new Claim(ITokenService.Claims.Name, user.Username)
         ];
         if (user.Role is not null)
         {
-            claims.Add(new Claim(Claims.Role, user.Role.ToString()!));
+            claims.Add(new Claim(ITokenService.Claims.Role, user.Role.ToString()!));
         }
 
         return new ClaimsIdentity(claims);

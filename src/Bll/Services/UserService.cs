@@ -12,7 +12,7 @@ public class UserService(ITokenService tokenService,
 {
     public async Task<User> LoginAsync(UserLogin userLogin)
     {
-        Dal.Models.User? user = await userRepository.GetByUsername(userLogin.Username);
+        Dal.Models.User? user = await userRepository.GetByUsernameAsync(userLogin.Username);
         if (user is null) throw new UnauthorizedAccessException("User not found");
         byte[] hash = HashPassword(userLogin.Password, user.PasswordSalt);
         if (!hash.SequenceEqual(user.PasswordHash))
@@ -29,7 +29,7 @@ public class UserService(ITokenService tokenService,
     public async Task<User> RegisterAsync(UserRegister userRegister)
     {
         byte[] salt = new HMACSHA512().Key;
-        Dal.Models.User u = await userRepository.Create(
+        Dal.Models.User u = await userRepository.CreateAsync(
             new Dal.Models.User
             {
                 Username = userRegister.Username,

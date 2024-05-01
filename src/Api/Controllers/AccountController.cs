@@ -15,9 +15,8 @@ public class AccountController(IUserService userService) : ControllerBase
         {
             return this.Ok(await userService.RegisterAsync(userRegister));
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            Console.WriteLine(e);
             return this.Problem();
         }
     }

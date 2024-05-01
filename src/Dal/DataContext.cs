@@ -11,4 +11,5 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
     }
 
     public required DbSet<User> Users { get; init; }
+    public required DbSet<Course> Courses { get; init; }
 }

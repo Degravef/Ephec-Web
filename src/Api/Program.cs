@@ -1,8 +1,10 @@
+using Api.Validators;
 using Bll.Extensions;
 using Dal;
 using Dal.Extensions;
 using Dal.Interfaces;
 using Dal.Models;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -17,6 +19,7 @@ builder.Services.AddDalServices();
 var jwtConfig = new JwtConfig();
 builder.Configuration.Bind("JwtConfig", jwtConfig);
 builder.Services.AddSingleton<IJwtConfig>(jwtConfig);
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 builder.Services.AddDbContext<DataContext>(options =>
 {
