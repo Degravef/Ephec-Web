@@ -1,4 +1,3 @@
-using Bll.Interfaces;
 using Dal.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,18 +9,14 @@ public partial class CourseController
     [HttpPost("enroll/{courseId:int}")]
     public async Task<IActionResult> EnrollStudentToCourse(int courseId)
     {
-        Role? role = GetRoleFromBearerToken();
-        int? studentId = GetUserIdFromBearerToken();
-        if (role != Role.Student || studentId is null) return this.Unauthorized();
-        return await courseService.EnrollStudentToCourseAsync(courseId, studentId.Value) ? this.Ok() : this.BadRequest();
+        if (UserRole is not Role.Student || UserId is null) return base.Unauthorized();
+        return await courseService.EnrollStudentToCourseAsync(courseId, UserId.Value) ? base.Ok() : base.BadRequest();
     }
 
     [HttpPost("remove/{courseId:int}")]
-    public async Task<IActionResult> RemoveStudentToCourse(int courseId)
+    public async Task<IActionResult> RemoveStudentFromCourse(int courseId)
     {
-        Role? role = GetRoleFromBearerToken();
-        int? studentId = GetUserIdFromBearerToken();
-        if (role != Role.Student || studentId is null) return this.Unauthorized();
-        return await courseService.RemoveStudentToCourseAsync(courseId, studentId.Value)? this.Ok() : this.BadRequest();
+        if (UserRole is not Role.Student || UserId is null) return base.Unauthorized();
+        return await courseService.RemoveStudentToCourseAsync(courseId, UserId.Value)? base.Ok() : base.BadRequest();
     }
 }

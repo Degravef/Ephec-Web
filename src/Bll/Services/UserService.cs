@@ -3,6 +3,7 @@ using System.Text;
 using Bll.Interfaces;
 using Bll.Models;
 using Dal.Interfaces;
+using Dal.Models;
 using User = Bll.Models.User;
 
 namespace Bll.Services;
@@ -41,6 +42,22 @@ public class UserService(ITokenService tokenService,
             Username = u.Username,
             Token = tokenService.CreateToken(u)
         };
+    }
+
+    public async Task<IEnumerable<UserListDto>> GetAllAsync()
+    {
+        return (await userRepository.GetAllAsync()).Select(u => new UserListDto()
+        {
+            Username = u.Username
+        });
+    }
+
+    public async Task<bool> PromoteUser(int userId, Role newRole)
+    {
+        Dal.Models.User? user = await userRepository.GetByIdAsync(userId);
+        if (user is null) return false;
+        user.Role = newRole;
+        return await userRepository.UpdateAsync(user);
     }
 
     private static byte[] HashPassword(string password, byte[] salt)
