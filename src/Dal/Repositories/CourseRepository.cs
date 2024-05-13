@@ -11,9 +11,9 @@ public class CourseRepository(DataContext context) : ICourseRepository
         return await context.Courses.ToListAsync();
     }
 
-    public async Task<Course?> GetByIdAsync(int id)
+    public async Task<Course?> GetByIdAsync(int courseId)
     {
-        return await context.Courses.FirstOrDefaultAsync(x => x.Id == id);
+        return await context.Courses.FirstOrDefaultAsync(x => x.Id == courseId);
     }
 
     public async Task<Course> CreateAsync(Course course)
@@ -30,23 +30,17 @@ public class CourseRepository(DataContext context) : ICourseRepository
         if (existingCourse is null) return false;
         existingCourse.Name = course.Name;
         existingCourse.Description = course.Description;
-        context.Courses.Update(course);
+        context.Courses.Update(existingCourse);
         return await context.SaveChangesAsync() > 0;
     }
 
-    public async Task<bool> DeleteAsync(Course course)
+    public async Task<bool> DeleteByIdAsync(int courseId)
     {
-        User? existingUser = await context.Users.FindAsync(course.Id);
-        if (existingUser is null) return false;
-        context.Entry(existingUser).CurrentValues.SetValues(course);
-        return await context.SaveChangesAsync() > 0;
-    }
-
-    public async Task<bool> DeleteByIdAsync(int id)
-    {
-        Course? entity = await context.Courses.FirstOrDefaultAsync(x => x.Id == id);
-        if (entity is not null) return await DeleteAsync(entity);
-        return false;
+        Course? entity = await context.Courses.FirstOrDefaultAsync(x => x.Id == courseId);
+        if (entity is null) return false;
+        context.Courses.Remove(entity);
+        await context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<IEnumerable<Course>> GetCoursesByStudentAsync(int userId)

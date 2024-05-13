@@ -8,6 +8,7 @@ namespace Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public partial class CourseController(ICourseService courseService,
+    IUserService userService,
     ITokenService tokenService) : ControllerBase
 {
     [HttpGet]
@@ -17,14 +18,14 @@ public partial class CourseController(ICourseService courseService,
         {
             return GetRoleFromBearerToken() switch
             {
-                Role.Student => this.Ok(await courseService.GetCoursesByStudent(GetUserIdFromBearerToken())),
-                Role.Instructor => this.Ok(await courseService.GetCoursesByInstructor(GetUserIdFromBearerToken())),
-                _ => this.Ok(await courseService.GetAllCourses())
+                Role.Student => base.Ok(await courseService.GetCoursesByStudent(GetUserIdFromBearerToken())),
+                Role.Instructor => base.Ok(await courseService.GetCoursesByInstructor(GetUserIdFromBearerToken())),
+                _ => base.Ok(await courseService.GetAllCourses())
             };
         }
         catch (Exception)
         {
-            return this.Problem();
+            return base.Problem();
         }
     }
 
@@ -33,60 +34,48 @@ public partial class CourseController(ICourseService courseService,
     {
         try
         {
-            return this.Ok(await courseService.GetCourseById(id));
+            return base.Ok(await courseService.GetCourseById(id));
         }
         catch (Exception)
         {
-            return this.Problem();
+            return base.Problem();
         }
     }
 
     [HttpPost]
     public async Task<IActionResult> CreateCourse([FromBody] CreateCourseDto courseDto)
     {
-        if (!this.ModelState.IsValid) return this.BadRequest(this.ModelState);
+        if (!ModelState.IsValid) return base.BadRequest(ModelState);
         try
         {
-            return this.Ok(await courseService.CreateCourse(courseDto));
+            return base.Ok(await courseService.CreateCourse(courseDto));
         }
         catch (Exception)
         {
-            return this.Problem();
+            return base.Problem();
         }
     }
 
     [HttpPut]
     public async Task<IActionResult> UpdateCourse([FromBody] UpdateCourseDto courseDto)
     {
-        if (!this.ModelState.IsValid) return this.BadRequest(this.ModelState);
-        try
-        {
-            return this.Ok(await courseService.UpdateCourse(courseDto));
-        }
-        catch (Exception)
-        {
-            return this.Problem();
-        }
+        if (!ModelState.IsValid) return base.BadRequest(ModelState);
+        bool ok = await courseService.UpdateCourse(courseDto);
+        return ok ? base.Ok() : base.BadRequest();
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteCourse(int id)
     {
-        try
-        {
-            return this.Ok(await courseService.DeleteCourse(id));
-        }
-        catch (Exception)
-        {
-            return this.Problem();
-        }
+        bool ok = await courseService.DeleteCourse(id);
+        return ok ? base.Ok() : base.BadRequest();
     }
 
     private string? GetBearerToken()
     {
         try
         {
-            return this.HttpContext.Request.Headers.Authorization.ToString();
+            return HttpContext.Request.Headers.Authorization.ToString();
         }
         catch (Exception)
         {

@@ -11,18 +11,18 @@ public partial class CourseController
     {
         Role? role = GetRoleFromBearerToken();
         int? instructorId = GetUserIdFromBearerToken();
-        if (role != Role.Instructor || instructorId is null) return this.Unauthorized();
-        return await courseService.AssignInstructorAsync(courseId, instructorId.Value) ? this.Ok() : this.BadRequest();
+        if (role != Role.Instructor || instructorId is null) return Unauthorized();
+        return await courseService.AssignInstructorAsync(courseId, instructorId.Value) ? Ok() : BadRequest();
     }
 
-    [HttpDelete("remove/{courseId:int}")]
-    public async Task<IActionResult> RemoveInstructor(string token, int courseId)
+    [HttpDelete("assign/{courseId:int}")]
+    public async Task<IActionResult> RemoveInstructor(int courseId)
     {
         Role? role = GetRoleFromBearerToken();
         int? instructorId = GetUserIdFromBearerToken();
-        if (role != Role.Instructor || instructorId is null) return this.Unauthorized();
+        if (role != Role.Instructor || instructorId is null) return Unauthorized();
         // instructors can only remove instructor from their own courses
-        if ((await courseService.GetCoursesByInstructor(instructorId)).All(x => x.Id != courseId)) return this.BadRequest();
-        return await courseService.RemoveInstructorAsync(courseId) ? this.Ok() : this.BadRequest();
+        if ((await courseService.GetCoursesByInstructor(instructorId)).All(x => x.Id != courseId)) return BadRequest();
+        return await courseService.RemoveInstructorAsync(courseId) ? Ok() : BadRequest();
     }
 }

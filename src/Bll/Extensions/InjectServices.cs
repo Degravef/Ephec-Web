@@ -10,6 +10,7 @@ public static class InjectServices
     {
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<ICourseService, CourseService>();
         return services;
     }
 }

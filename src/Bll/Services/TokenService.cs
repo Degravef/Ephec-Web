@@ -11,12 +11,15 @@ namespace Bll.Services;
 
 public class TokenService(IJwtConfig config) : ITokenService
 {
+    private const string Algorithm = SecurityAlgorithms.HmacSha256;
+
+    private readonly SigningCredentials _credentials = new(
+        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.Secret)), Algorithm);
 
     public string CreateToken(User user)
     {
         DateTime notBefore = DateTime.UtcNow;
         DateTime expires = notBefore.AddMinutes(config.AccessExpirationMinutes);
-        SigningCredentials credentials = GetSigningCredentials();
         JwtSecurityTokenHandler tokenHandler = new();
         ClaimsIdentity claims = GetClaimsIdentity(user);
         JwtSecurityToken? token = tokenHandler.CreateJwtSecurityToken(
@@ -25,10 +28,21 @@ public class TokenService(IJwtConfig config) : ITokenService
             subject: claims,
             notBefore: notBefore,
             expires: expires,
-            signingCredentials: credentials
+            signingCredentials: _credentials
         );
         if (token is not null) return tokenHandler.WriteToken(token);
         throw new AuthenticationException("Token could not be created");
+    }
+
+    public bool ValidateToken(string jwtToken)
+    {
+        JwtSecurityTokenHandler tokenHandler = new();
+        JwtSecurityToken? token = tokenHandler.ReadJwtToken(jwtToken);
+        if (token is null ||
+            !token.Header.Alg.Equals(Algorithm) ||
+            !token.SigningCredentials.Key.Equals(Encoding.UTF8.GetBytes(config.Secret))) return false;
+        if (token.ValidTo < DateTime.UtcNow) return false;
+        return true;
     }
 
     public string? GetClaimValue(string jwtToken, string claimType)
@@ -42,23 +56,10 @@ public class TokenService(IJwtConfig config) : ITokenService
 
     private static ClaimsIdentity GetClaimsIdentity(User user)
     {
-        List<Claim> claims =
-        [
+        return new ClaimsIdentity([
             new Claim(ITokenService.Claims.Id, user.Id.ToString()),
-            new Claim(ITokenService.Claims.Name, user.Username)
-        ];
-        if (user.Role is not null)
-        {
-            claims.Add(new Claim(ITokenService.Claims.Role, user.Role.ToString()!));
-        }
-
-        return new ClaimsIdentity(claims);
-    }
-
-    private SigningCredentials GetSigningCredentials()
-    {
-        return new SigningCredentials(
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.Secret)),
-            SecurityAlgorithms.HmacSha256);
+            new Claim(ITokenService.Claims.Name, user.Username),
+            new Claim(ITokenService.Claims.Role, user.Role.ToString()!)
+        ]);
     }
 }

@@ -16,8 +16,8 @@ public partial class CourseController
         return await courseService.EnrollStudentToCourseAsync(courseId, studentId.Value) ? this.Ok() : this.BadRequest();
     }
 
-    [HttpPost("remove/{courseId:int}")]
-    public async Task<IActionResult> RemoveStudentToCourse(int courseId)
+    [HttpDelete("enroll/{courseId:int}")]
+    public async Task<IActionResult> RemoveStudentFromCourse(int courseId)
     {
         Role? role = GetRoleFromBearerToken();
         int? studentId = GetUserIdFromBearerToken();

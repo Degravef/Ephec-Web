@@ -8,9 +8,14 @@ namespace Bll.Services;
 
 public class CourseService(IUserRepository userRepository, ICourseRepository courseRepository) : ICourseService
 {
-    public async Task<IEnumerable<Course>> GetAllCourses()
+    public async Task<IEnumerable<CourseListDto>> GetAllCourses()
     {
-        return await courseRepository.GetAllAsync();
+        return (await courseRepository.GetAllAsync())
+            .Select(c => new CourseListDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+            });
     }
 
     public async Task<Course?> GetCourseById(int id)
@@ -44,6 +49,7 @@ public class CourseService(IUserRepository userRepository, ICourseRepository cou
     {
         var c = new Course
         {
+            Id = courseDto.Id,
             Name = courseDto.Name,
             Description = courseDto.Description,
         };
