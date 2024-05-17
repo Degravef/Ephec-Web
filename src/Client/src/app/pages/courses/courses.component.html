@@ -1,1 +1,13 @@
 <p>courses works!</p>
+<table>
+  <tr>
+    <th>ID</th>
+    <th>Username</th>
+    <th>Role</th>
+  </tr>
+  <tr *ngFor="let item of courses">
+    <td>{{item.id}}</td>
+    <td>{{item.username}}</td>
+    <td>{{item.role}}</td>
+  </tr>
+</table>
