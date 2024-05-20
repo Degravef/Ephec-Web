@@ -1,5 +1,5 @@
-import {HttpClient} from '@angular/common/http';
 import {Component, OnInit} from "@angular/core";
+import {HttpClient} from '@angular/common/http';
 import {NgForOf} from "@angular/common";
 
 @Component({
@@ -13,11 +13,9 @@ import {NgForOf} from "@angular/common";
 })
 export class CoursesComponent implements OnInit {
 
-  private http: HttpClient;
   protected courses: any;
 
-  constructor(_http: HttpClient) {
-    this.http = _http;
+  constructor(private http: HttpClient) {
   }
 
   ngOnInit(): void {

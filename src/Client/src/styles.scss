@@ -22,15 +22,19 @@ $dark-theme: (
 body {
   @include apply-theme($light-theme);
 
-  @media (prefers-color-scheme: dark) {
-    @include apply-theme($dark-theme);
-  }
-
-  @media (prefers-color-scheme: light) {
-    @include apply-theme($light-theme);
-  }
+  //@media (prefers-color-scheme: dark) {
+  //  @include apply-theme($dark-theme);
+  //}
+  //
+  //@media (prefers-color-scheme: light) {
+  //  @include apply-theme($light-theme);
+  //}
 }
 
 body {
+  font-size: large;
+}
+
+.banner {
   font-size: xxx-large;
 }
