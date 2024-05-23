@@ -1,0 +1,18 @@
+<table class="table table-borderless table-striped">
+  <thead>
+  <tr>
+    <th>Username</th>
+    <th>Role</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let user of users">
+    <td>{{ user.username }}</td>
+    <td>
+      <select class="form-control" [(ngModel)]="user.role" (ngModelChange)="changeRole(user.id, user.role)">
+        <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+      </select>
+    </td>
+  </tr>
+  </tbody>
+</table>

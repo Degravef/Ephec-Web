@@ -125,8 +125,6 @@ export class CourseService {
         const headers = new HttpHeaders()
           .set('Content-Type', 'application/json')
           .set('Authorization', `Bearer ${token}`);
-        console.log(`courseId type: ${typeof courseId}, value: ${courseId}`);
-        console.log(`${environment.baseApiUrl}/Course/${courseId}`);
         return this.httpClient.delete(`${environment.baseApiUrl}/Course/${courseId}`, { headers });
       })
     )
