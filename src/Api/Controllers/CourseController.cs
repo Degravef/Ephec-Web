@@ -8,7 +8,6 @@ namespace Api.Controllers;
 [ApiController]
 [Route("api/")]
 public partial class CourseController(ICourseService courseService,
-    IUserService userService,
     ITokenService tokenService) : ControllerBase
 {
     [HttpGet("Courses")]
@@ -49,7 +48,9 @@ public partial class CourseController(ICourseService courseService,
     {
         try
         {
-            return HttpContext.Request.Headers.Authorization.ToString();
+            string s = HttpContext.Request.Headers.Authorization.ToString();
+            if (!s.StartsWith("Bearer ")) return null;
+            return s[7..];
         }
         catch (Exception)
         {

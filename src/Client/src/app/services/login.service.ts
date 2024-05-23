@@ -9,6 +9,9 @@ import {environment} from "../environment";
 })
 export class LoginService {
 
+  private _token: BehaviorSubject<string> = new BehaviorSubject<string>(this.getInitialToken());
+  public readonly token: Observable<string> = this._token.asObservable();
+
   private _isLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(this.getInitialLoginState());
   public readonly isLoggedIn: Observable<boolean> = this._isLoggedIn.asObservable();
 
@@ -45,24 +48,37 @@ export class LoginService {
   }
 
   private saveLoginData(token: string): void {
-    console.log(`token: ${token}`);
     localStorage.setItem('token', token);
     this.refresh();
   }
 
   private refresh() {
-    this._isLoggedIn.next(this.getInitialLoginState());
-    this._username.next(this.getInitialUsername());
+    this._token.next(this.getInitialToken());
+    if (this._token.getValue() === '') {
+      this._isLoggedIn.next(false);
+      this._username.next('');
+    } else {
+      this._isLoggedIn.next(this.getInitialLoginState());
+      this._username.next(this.getInitialUsername());
+    }
   }
 
   private getInitialLoginState(): boolean {
-    return localStorage.getItem('token') !== null;
+    return this._token.getValue() !== '';
+  }
+
+  private getInitialToken(): string {
+    return localStorage.getItem('token')?? "";
   }
 
   private getInitialUsername(): string {
-     const token: string | null = localStorage.getItem('token');
-     if (token === null) return "";
-     let decoded = jwtDecode(token) as any;
-     return decoded.name ?? "";
+    try {
+      const token: string = this._token.getValue();
+      if (token === null) return "";
+      let decoded = jwtDecode(token) as any;
+      return decoded.name ?? "";
+    } catch (e) {
+      return "";
+    }
   }
 }

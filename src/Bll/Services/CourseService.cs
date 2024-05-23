@@ -15,7 +15,23 @@ public class CourseService(IUserRepository userRepository, ICourseRepository cou
             {
                 Id = c.Id,
                 Name = c.Name,
+                IsEnrolled = false
             });
+    }
+
+    public async Task<IEnumerable<CourseListDto>> GetAllCoursesByStudent(int userId)
+    {
+        var allCoursesTask = courseRepository.GetAllAsync();
+        var enrolledCoursesTask = courseRepository.GetCoursesByStudentAsync(userId);
+        (IEnumerable<Course> allCourses, IEnumerable<Course> enrolledCourses) =
+            (await allCoursesTask, await enrolledCoursesTask);
+        var enrolledCourseIds = new HashSet<int>(enrolledCourses.Select(c => c.Id));
+        return allCourses.Select(c => new CourseListDto
+        {
+            Id = c.Id,
+            Name = c.Name,
+            IsEnrolled = enrolledCourseIds.Contains(c.Id)
+        });
     }
 
     public async Task<CourseDetailsDto?> GetCourseById(int id)
@@ -31,16 +47,26 @@ public class CourseService(IUserRepository userRepository, ICourseRepository cou
         };
     }
 
-    public async Task<IEnumerable<Course>> GetCoursesByStudent(int? studentId)
+    public async Task<IEnumerable<CourseListDto>> GetCoursesByStudent(int studentId)
     {
-        if (studentId is null) return Enumerable.Empty<Course>();
-        return await courseRepository.GetCoursesByStudentAsync(studentId.Value);
+        return (await courseRepository.GetCoursesByStudentAsync(studentId))
+            .Select(c => new CourseListDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                IsEnrolled = true
+            });
     }
 
-    public async Task<IEnumerable<Course>> GetCoursesByInstructor(int? instructorId)
+    public async Task<IEnumerable<CourseListDto>> GetCoursesByInstructor(int instructorId)
     {
-        if (instructorId is null) return Enumerable.Empty<Course>();
-        return await courseRepository.GetCoursesByInstructorAsync(instructorId.Value);
+        return (await courseRepository.GetCoursesByInstructorAsync(instructorId))
+            .Select(c => new CourseListDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                IsEnrolled = true
+            });
     }
 
     public async Task<Course> CreateCourse(CreateCourseDto courseDto)
@@ -73,7 +99,7 @@ public class CourseService(IUserRepository userRepository, ICourseRepository cou
     {
         (Course? course, User? student) = await GetCourseAndUserWithRoleAsync(courseId, studentId, Role.Student);
         if (course is null || student is null) return false;
-        course.Instructor = student;
+        course.Students.Add(student);
         return await courseRepository.UpdateAsync(course);
     }
 
@@ -88,8 +114,11 @@ public class CourseService(IUserRepository userRepository, ICourseRepository cou
 
     public async Task<bool> RemoveStudentToCourseAsync(int courseId, int studentId)
     {
-        (Course? course, User? student) = await GetCourseAndUserWithRoleAsync(courseId, studentId, Role.Student);
-        if (course is null || student is null) return false;
+        IEnumerable<Course> courses = await courseRepository.GetCoursesByStudentAsync(studentId);
+        Course? course = courses.FirstOrDefault(c => c.Id == courseId);
+        if (course is null) return false;
+        User? student = course.Students.FirstOrDefault(s => s.Id == studentId);
+        if (student is null) return false;
         course.Students.Remove(student);
         return await courseRepository.UpdateAsync(course);
     }

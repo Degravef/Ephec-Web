@@ -1,1 +1,36 @@
-<p>home works!</p>
+<table class="table table-striped">
+  <thead>
+  <tr>
+    <th>Course Name</th>
+    <th></th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let item of courses">
+    <td>{{item.name}}</td>
+    <td class="text-end">
+      <button *ngIf="(loginService.isLoggedIn | async) && item.isEnrolled" class="btn btn-danger me-1" (click)="quit(item)">Quit</button>
+      <button *ngIf="(loginService.isLoggedIn | async) && !item.isEnrolled" class="btn btn-success me-1" (click)="enroll(item)">Enroll</button>
+      <button class="btn btn-info" (click)="openDetailsModal(item)">Details</button>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+<!-- CourseDetails Modal -->
+<div class="modal fade" #courseDetailsModal tabindex="-1" aria-labelledby="courseDetailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="courseDetailsModalLabel">{{selectedCourse?.name}}{{selectedCourse?.instructor ? selectedCourse.instructor : ''}}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>{{selectedCourse?.description}}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

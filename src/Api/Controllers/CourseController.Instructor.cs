@@ -1,4 +1,3 @@
-using Bll.Interfaces;
 using Dal.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,7 +21,7 @@ public partial class CourseController
         int? instructorId = GetUserIdFromBearerToken();
         if (role != Role.Instructor || instructorId is null) return Unauthorized();
         // instructors can only remove instructor from their own courses
-        if ((await courseService.GetCoursesByInstructor(instructorId)).All(x => x.Id != courseId)) return BadRequest();
+        if ((await courseService.GetCoursesByInstructor(instructorId.Value)).All(x => x.Id != courseId)) return BadRequest();
         return await courseService.RemoveInstructorAsync(courseId) ? Ok() : BadRequest();
     }
 }

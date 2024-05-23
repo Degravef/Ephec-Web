@@ -36,7 +36,7 @@ public static class UserSeed
                             Username = "François",
                             PasswordSalt = salt3,
                             PasswordHash = HashPassword(password: "fdg", salt3),
-                            Role = Role.Instructor
+                            Role = Role.Student
                         }
                     );
     }

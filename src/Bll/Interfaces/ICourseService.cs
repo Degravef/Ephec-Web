@@ -7,8 +7,8 @@ public interface ICourseService
 {
     Task<IEnumerable<CourseListDto>> GetAllCourses();
     Task<CourseDetailsDto?> GetCourseById(int id);
-    Task<IEnumerable<Course>> GetCoursesByStudent(int? studentId);
-    Task<IEnumerable<Course>> GetCoursesByInstructor(int? instructorId);
+    Task<IEnumerable<CourseListDto>> GetCoursesByStudent(int studentId);
+    Task<IEnumerable<CourseListDto>> GetCoursesByInstructor(int instructorId);
     Task<Course> CreateCourse(CreateCourseDto courseDto);
     Task<bool> UpdateCourse(UpdateCourseDto courseDto);
     Task<bool> DeleteCourse(int id);
@@ -16,4 +16,5 @@ public interface ICourseService
     Task<bool> AssignInstructorAsync(int courseId, int instructorId);
     Task<bool> RemoveStudentToCourseAsync(int courseId, int studentId);
     Task<bool> RemoveInstructorAsync(int courseId);
+    Task<IEnumerable<CourseListDto>> GetAllCoursesByStudent(int userId);
 }
