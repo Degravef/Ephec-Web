@@ -1,9 +1,7 @@
-using Api.Validators;
-using Bll.Extensions;
+using Bll.Config;
+using Bll.Interfaces;
 using Dal;
 using Dal.Extensions;
-using Dal.Interfaces;
-using Dal.Models;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 

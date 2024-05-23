@@ -2,7 +2,7 @@ using Bll.Interfaces;
 using Bll.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bll.Extensions;
+namespace Bll.Config;
 
 public static class InjectServices
 {

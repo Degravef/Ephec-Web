@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, catchError, Observable, of, tap} from "rxjs";
 import {HttpClient} from "@angular/common/http";
+import {jwtDecode}  from 'jwt-decode';
 import {environment} from "../environment";
 
 @Injectable({
@@ -8,27 +9,21 @@ import {environment} from "../environment";
 })
 export class LoginService {
 
-  private _isLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private _isLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(this.getInitialLoginState());
   public readonly isLoggedIn: Observable<boolean> = this._isLoggedIn.asObservable();
 
-  private _token: BehaviorSubject<string> = new BehaviorSubject<string>("");
-  public readonly token: Observable<string> = this._token.asObservable();
-
-  private _username: BehaviorSubject<string> = new BehaviorSubject<string>("");
+  private _username: BehaviorSubject<string> = new BehaviorSubject<string>(this.getInitialUsername());
   public readonly username: Observable<string> = this._username.asObservable();
 
   constructor(private http: HttpClient) {
+
   }
 
   login(username: string, password: string): Observable<any> {
     this.logout();
     return this.http.post<any>(environment.baseApiUrl + "/login", {username, password})
       .pipe(
-        tap(data => {
-          this._username.next(data.username);
-          this._token.next(data.token);
-          this._isLoggedIn.next(true);
-        })
+        tap(data => this.saveLoginData(data.token))
       );
   }
 
@@ -36,7 +31,7 @@ export class LoginService {
     this.logout();
     return this.http.post<any>(environment.baseApiUrl + "/register", {username, password})
       .pipe(
-        tap(data => this.saveLoginData(data)),
+        tap(data => this.saveLoginData(data.token)),
         catchError(() => {
           this.logout();
           return of(false);
@@ -45,16 +40,29 @@ export class LoginService {
   }
 
   logout(): void {
-    this._isLoggedIn.next(false);
-    this._token.next("");
-    this._username.next("");
+    localStorage.removeItem('token');
+    this.refresh();
   }
 
-  private saveLoginData(data: any): void {
-    this._username.next(data.username);
-    this._token.next(data.token);
-    console.log(data.token);
-    this._isLoggedIn.next(true);
-    console.log(this._isLoggedIn.value);
+  private saveLoginData(token: string): void {
+    console.log(`token: ${token}`);
+    localStorage.setItem('token', token);
+    this.refresh();
+  }
+
+  private refresh() {
+    this._isLoggedIn.next(this.getInitialLoginState());
+    this._username.next(this.getInitialUsername());
+  }
+
+  private getInitialLoginState(): boolean {
+    return localStorage.getItem('token') !== null;
+  }
+
+  private getInitialUsername(): string {
+     const token: string | null = localStorage.getItem('token');
+     if (token === null) return "";
+     let decoded = jwtDecode(token) as any;
+     return decoded.name ?? "";
   }
 }

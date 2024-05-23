@@ -6,57 +6,31 @@ using Microsoft.AspNetCore.Mvc;
 namespace Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/")]
 public partial class CourseController(ICourseService courseService,
     IUserService userService,
     ITokenService tokenService) : ControllerBase
 {
-    [HttpGet]
+    [HttpGet("Courses")]
     public async Task<IActionResult> GetAllCourses()
     {
-        try
-        {
-            return GetRoleFromBearerToken() switch
-            {
-                Role.Student => base.Ok(await courseService.GetCoursesByStudent(GetUserIdFromBearerToken())),
-                Role.Instructor => base.Ok(await courseService.GetCoursesByInstructor(GetUserIdFromBearerToken())),
-                _ => base.Ok(await courseService.GetAllCourses())
-            };
-        }
-        catch (Exception)
-        {
-            return base.Problem();
-        }
+         return base.Ok(await courseService.GetAllCourses());
     }
 
-    [HttpGet("{id:int}")]
+    [HttpGet("Course/{id:int}")]
     public async Task<IActionResult> GetCourseById(int id)
     {
-        try
-        {
-            return base.Ok(await courseService.GetCourseById(id));
-        }
-        catch (Exception)
-        {
-            return base.Problem();
-        }
+        return base.Ok(await courseService.GetCourseById(id));
     }
 
-    [HttpPost]
+    [HttpPost("Course")]
     public async Task<IActionResult> CreateCourse([FromBody] CreateCourseDto courseDto)
     {
         if (!ModelState.IsValid) return base.BadRequest(ModelState);
-        try
-        {
-            return base.Ok(await courseService.CreateCourse(courseDto));
-        }
-        catch (Exception)
-        {
-            return base.Problem();
-        }
+        return base.Ok(await courseService.CreateCourse(courseDto));
     }
 
-    [HttpPut]
+    [HttpPut("Course")]
     public async Task<IActionResult> UpdateCourse([FromBody] UpdateCourseDto courseDto)
     {
         if (!ModelState.IsValid) return base.BadRequest(ModelState);
@@ -64,7 +38,7 @@ public partial class CourseController(ICourseService courseService,
         return ok ? base.Ok() : base.BadRequest();
     }
 
-    [HttpDelete("{id:int}")]
+    [HttpDelete("Course/{id:int}")]
     public async Task<IActionResult> DeleteCourse(int id)
     {
         bool ok = await courseService.DeleteCourse(id);

@@ -6,8 +6,25 @@ namespace Api.Controllers;
 
 public partial class CourseController
 {
+    [HttpGet("UserCourses")]
+    public async Task<IActionResult> GetUserCourses()
+    {
+        try
+        {
+            return GetRoleFromBearerToken() switch
+            {
+                Role.Student => base.Ok(await courseService.GetCoursesByStudent(GetUserIdFromBearerToken())),
+                Role.Instructor => base.Ok(await courseService.GetCoursesByInstructor(GetUserIdFromBearerToken())),
+                _ => base.Ok(await courseService.GetCoursesByStudent(GetUserIdFromBearerToken()))
+            };
+        }
+        catch (Exception)
+        {
+            return base.Problem();
+        }
+    }
 
-    [HttpPost("enroll/{courseId:int}")]
+    [HttpPost("course/enroll/{courseId:int}")]
     public async Task<IActionResult> EnrollStudentToCourse(int courseId)
     {
         Role? role = GetRoleFromBearerToken();
@@ -16,7 +33,7 @@ public partial class CourseController
         return await courseService.EnrollStudentToCourseAsync(courseId, studentId.Value) ? this.Ok() : this.BadRequest();
     }
 
-    [HttpDelete("enroll/{courseId:int}")]
+    [HttpDelete("course/enroll/{courseId:int}")]
     public async Task<IActionResult> RemoveStudentFromCourse(int courseId)
     {
         Role? role = GetRoleFromBearerToken();

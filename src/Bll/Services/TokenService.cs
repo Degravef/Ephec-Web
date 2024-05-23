@@ -3,9 +3,9 @@ using System.Security.Authentication;
 using System.Security.Claims;
 using System.Text;
 using Bll.Interfaces;
-using Dal.Interfaces;
 using Dal.Models;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 
 namespace Bll.Services;
 
@@ -14,7 +14,7 @@ public class TokenService(IJwtConfig config) : ITokenService
     private const string Algorithm = SecurityAlgorithms.HmacSha256;
 
     private readonly SigningCredentials _credentials = new(
-        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.Secret)), Algorithm);
+        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.Secret!)), Algorithm);
 
     public string CreateToken(User user)
     {
@@ -40,7 +40,7 @@ public class TokenService(IJwtConfig config) : ITokenService
         JwtSecurityToken? token = tokenHandler.ReadJwtToken(jwtToken);
         if (token is null ||
             !token.Header.Alg.Equals(Algorithm) ||
-            !token.SigningCredentials.Key.Equals(Encoding.UTF8.GetBytes(config.Secret))) return false;
+            !token.SigningCredentials.Key.Equals(Encoding.UTF8.GetBytes(config.Secret!))) return false;
         if (token.ValidTo < DateTime.UtcNow) return false;
         return true;
     }
@@ -59,7 +59,7 @@ public class TokenService(IJwtConfig config) : ITokenService
         return new ClaimsIdentity([
             new Claim(ITokenService.Claims.Id, user.Id.ToString()),
             new Claim(ITokenService.Claims.Name, user.Username),
-            new Claim(ITokenService.Claims.Role, user.Role.ToString()!)
+            new Claim(ITokenService.Claims.Role, user.Role.ToString())
         ]);
     }
 }

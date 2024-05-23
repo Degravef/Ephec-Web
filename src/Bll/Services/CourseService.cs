@@ -18,9 +18,17 @@ public class CourseService(IUserRepository userRepository, ICourseRepository cou
             });
     }
 
-    public async Task<Course?> GetCourseById(int id)
+    public async Task<CourseDetailsDto?> GetCourseById(int id)
     {
-        return await courseRepository.GetByIdAsync(id);
+        Course? course = await courseRepository.GetByIdAsync(id);
+        if (course is null) return null;
+        return new CourseDetailsDto
+        {
+            Id = course.Id,
+            Name = course.Name,
+            Description = course.Description ?? string.Empty,
+            Instructor = course.Instructor?.Username ?? string.Empty,
+        };
     }
 
     public async Task<IEnumerable<Course>> GetCoursesByStudent(int? studentId)

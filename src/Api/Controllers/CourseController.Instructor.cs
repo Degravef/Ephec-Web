@@ -6,7 +6,7 @@ namespace Api.Controllers;
 
 public partial class CourseController
 {
-    [HttpPost("assign/{courseId:int}")]
+    [HttpPost("course/assign/{courseId:int}")]
     public async Task<IActionResult> AssignInstructor(int courseId)
     {
         Role? role = GetRoleFromBearerToken();
@@ -15,7 +15,7 @@ public partial class CourseController
         return await courseService.AssignInstructorAsync(courseId, instructorId.Value) ? Ok() : BadRequest();
     }
 
-    [HttpDelete("assign/{courseId:int}")]
+    [HttpDelete("course/assign/{courseId:int}")]
     public async Task<IActionResult> RemoveInstructor(int courseId)
     {
         Role? role = GetRoleFromBearerToken();

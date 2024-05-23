@@ -2,30 +2,63 @@
 <button *ngIf="!isLoggedIn" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
   Login
 </button>
-<span *ngIf="isLoggedIn" class="navbar-text">
-  Welcome, {{ username }}
-</span>
+<div *ngIf="isLoggedIn" class="dropdown">
+  <span class="navbar-text dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown">
+    Welcome, {{ username }}
+  </span>
+  <ul class="dropdown-menu">
+    <li><a class="dropdown-item" (click)="logout()">Logout</a></li>
+  </ul>
+</div>
 
-<!-- Modal -->
-<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true" #loginModal>
+<div class="modal fade" id="loginModal" tabindex="-1" #loginModal>
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="loginModalLabel">Login</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title" id="loginModalLabel">Login / Register</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <form (ngSubmit)="onSubmit()">
-          <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" class="form-control" id="username" [(ngModel)]="formUsername" name="username" required>
+        <div class="nav nav-tabs" id="loginRegisterTab" role="tablist">
+          <div class="nav-item" role="presentation">
+            <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">Login</button>
           </div>
-          <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" [(ngModel)]="formPassword" name="password" required>
+          <div class="nav-item" role="presentation">
+            <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab">Register</button>
           </div>
-          <button type="submit" class="btn btn-primary">Login</button>
-        </form>
+        </div>
+        <div class="tab-content" id="loginRegisterTabContent">
+          <div class="tab-pane fade show active" id="login" role="tabpanel">
+            <form (ngSubmit)="onLogin()">
+              <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" [(ngModel)]="logUsername" name="username" required>
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" [(ngModel)]="logPassword" name="password" required>
+              </div>
+              <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+          </div>
+          <div class="tab-pane fade" id="register" role="tabpanel">
+            <form (ngSubmit)="onRegister()">
+              <div class="mb-3">
+                <label for="regUsername" class="form-label">Username</label>
+                <input type="text" class="form-control" id="regUsername" [(ngModel)]="regUsername" name="regUsername" required>
+              </div>
+              <div class="mb-3">
+                <label for="regPassword" class="form-label">Password</label>
+                <input type="password" class="form-control" id="regPassword" [(ngModel)]="regPassword" name="regPassword" required>
+              </div>
+              <div class="mb-3">
+                <label for="regPassword" class="form-label">Verify Password</label>
+                <input type="password" class="form-control" id="verifyPassword" [(ngModel)]="verifyPassword" name="regPassword" required>
+              </div>
+              <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   </div>

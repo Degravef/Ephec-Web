@@ -6,7 +6,7 @@ namespace Bll.Interfaces;
 public interface ICourseService
 {
     Task<IEnumerable<CourseListDto>> GetAllCourses();
-    Task<Course?> GetCourseById(int id);
+    Task<CourseDetailsDto?> GetCourseById(int id);
     Task<IEnumerable<Course>> GetCoursesByStudent(int? studentId);
     Task<IEnumerable<Course>> GetCoursesByInstructor(int? instructorId);
     Task<Course> CreateCourse(CreateCourseDto courseDto);

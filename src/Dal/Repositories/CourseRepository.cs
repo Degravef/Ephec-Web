@@ -13,7 +13,9 @@ public class CourseRepository(DataContext context) : ICourseRepository
 
     public async Task<Course?> GetByIdAsync(int courseId)
     {
-        return await context.Courses.FirstOrDefaultAsync(x => x.Id == courseId);
+        return await context.Courses
+                            .Include(course => course.Instructor)
+                            .FirstOrDefaultAsync(course => course.Id == courseId);
     }
 
     public async Task<Course> CreateAsync(Course course)
@@ -36,7 +38,7 @@ public class CourseRepository(DataContext context) : ICourseRepository
 
     public async Task<bool> DeleteByIdAsync(int courseId)
     {
-        Course? entity = await context.Courses.FirstOrDefaultAsync(x => x.Id == courseId);
+        Course? entity = await context.Courses.FirstOrDefaultAsync(course => course.Id == courseId);
         if (entity is null) return false;
         context.Courses.Remove(entity);
         await context.SaveChangesAsync();
@@ -46,8 +48,8 @@ public class CourseRepository(DataContext context) : ICourseRepository
     public async Task<IEnumerable<Course>> GetCoursesByStudentAsync(int userId)
     {
         User? currentUser = await context.Users
-                                         .Include(u => u.CoursesAsStudent)
-                                         .FirstOrDefaultAsync(x => x.Id == userId);
+                                         .Include(user => user.CoursesAsStudent)
+                                         .FirstOrDefaultAsync(user => user.Id == userId);
         if (currentUser is null) return new List<Course>();
         return currentUser.CoursesAsStudent;
     }
@@ -55,8 +57,8 @@ public class CourseRepository(DataContext context) : ICourseRepository
     public async Task<IEnumerable<Course>> GetCoursesByInstructorAsync(int userId)
     {
         User? currentUser = await context.Users
-                                         .Include(u => u.CoursesAsInstructor)
-                                         .FirstOrDefaultAsync(x => x.Id == userId);
+                                         .Include(user => user.CoursesAsInstructor)
+                                         .FirstOrDefaultAsync(user => user.Id == userId);
         if (currentUser is null) return new List<Course>();
         return currentUser.CoursesAsInstructor;
     }
