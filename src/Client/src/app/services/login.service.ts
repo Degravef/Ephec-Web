@@ -18,6 +18,9 @@ export class LoginService {
   private _username: BehaviorSubject<string> = new BehaviorSubject<string>(this.getInitialUsername());
   public readonly username: Observable<string> = this._username.asObservable();
 
+  private _role: BehaviorSubject<string> = new BehaviorSubject<string>(this.getInitialRole());
+  public readonly role: Observable<string> = this._role.asObservable();
+
   constructor(private http: HttpClient) {
 
   }
@@ -57,9 +60,11 @@ export class LoginService {
     if (this._token.getValue() === '') {
       this._isLoggedIn.next(false);
       this._username.next('');
+      this._role.next('');
     } else {
       this._isLoggedIn.next(this.getInitialLoginState());
       this._username.next(this.getInitialUsername());
+      this._role.next(this.getInitialRole());
     }
   }
 
@@ -77,6 +82,17 @@ export class LoginService {
       if (token === null) return "";
       let decoded = jwtDecode(token) as any;
       return decoded.name ?? "";
+    } catch (e) {
+      return "";
+    }
+  }
+
+  private getInitialRole() {
+    try {
+      const token: string = this._token.getValue();
+      if (token === null) return "";
+      let decoded = jwtDecode(token) as any;
+      return decoded.role ?? "";
     } catch (e) {
       return "";
     }

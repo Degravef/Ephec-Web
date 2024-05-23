@@ -15,22 +15,44 @@ public class CourseService(IUserRepository userRepository, ICourseRepository cou
             {
                 Id = c.Id,
                 Name = c.Name,
-                IsEnrolled = false
+                IsEnrolled = false,
+                hasInstructor = c.Instructor is not null
             });
     }
 
     public async Task<IEnumerable<CourseListDto>> GetAllCoursesByStudent(int userId)
     {
-        var allCoursesTask = courseRepository.GetAllAsync();
-        var enrolledCoursesTask = courseRepository.GetCoursesByStudentAsync(userId);
-        (IEnumerable<Course> allCourses, IEnumerable<Course> enrolledCourses) =
-            (await allCoursesTask, await enrolledCoursesTask);
+        Task<IEnumerable<Course>> allCoursesTask = courseRepository.GetAllAsync();
+        Task<IEnumerable<Course>> enrolledCoursesTask = courseRepository.GetCoursesByStudentAsync(userId);
+        User? user = await userRepository.GetByIdAsync(userId);
+        if (user is null || user.Role!= Role.Student) return new List<CourseListDto>();
+        IEnumerable<Course> allCourses = await allCoursesTask;
+        IEnumerable<Course> enrolledCourses = await enrolledCoursesTask;
         var enrolledCourseIds = new HashSet<int>(enrolledCourses.Select(c => c.Id));
         return allCourses.Select(c => new CourseListDto
         {
             Id = c.Id,
             Name = c.Name,
-            IsEnrolled = enrolledCourseIds.Contains(c.Id)
+            IsEnrolled = enrolledCourseIds.Contains(c.Id),
+            hasInstructor = c.Instructor is not null
+        });
+    }
+
+    public async Task<IEnumerable<CourseListDto>> GetAllCoursesByInstructor(int userId)
+    {
+        Task<IEnumerable<Course>> allCoursesTask = courseRepository.GetAllAsync();
+        Task<IEnumerable<Course>> enrolledCoursesTask = courseRepository.GetCoursesByInstructorAsync(userId);
+        User? user = await userRepository.GetByIdAsync(userId);
+        if (user is null || user.Role!= Role.Instructor) return new List<CourseListDto>();
+        IEnumerable<Course> allCourses = await allCoursesTask;
+        IEnumerable<Course> enrolledCourses = await enrolledCoursesTask;
+        var enrolledCourseIds = new HashSet<int>(enrolledCourses.Select(c => c.Id));
+        return allCourses.Select(c => new CourseListDto
+        {
+            Id = c.Id,
+            Name = c.Name,
+            IsEnrolled = enrolledCourseIds.Contains(c.Id),
+            hasInstructor = c.InstructorId is not null
         });
     }
 
@@ -54,7 +76,8 @@ public class CourseService(IUserRepository userRepository, ICourseRepository cou
             {
                 Id = c.Id,
                 Name = c.Name,
-                IsEnrolled = true
+                IsEnrolled = true,
+                hasInstructor = c.Instructor is not null
             });
     }
 
@@ -65,7 +88,8 @@ public class CourseService(IUserRepository userRepository, ICourseRepository cou
             {
                 Id = c.Id,
                 Name = c.Name,
-                IsEnrolled = true
+                IsEnrolled = true,
+                hasInstructor = c.Instructor is not null
             });
     }
 

@@ -1,4 +1,6 @@
-<table class="table table-striped">
+<h1 *ngIf="!(loginService.isLoggedIn | async)">Please log in or register</h1>
+
+<table *ngIf="(loginService.isLoggedIn | async)" class="table table-striped">
   <thead>
   <tr>
     <th>Course Name</th>
@@ -22,7 +24,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="courseDetailsModalLabel">{{selectedCourse?.name}}{{selectedCourse?.instructor ? selectedCourse.instructor : ''}}</h5>
+        <h5 class="modal-title" id="courseDetailsModalLabel">{{selectedCourse?.name}}{{selectedCourse?.instructor ? " - Instructor : " + selectedCourse.instructor : ''}}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">

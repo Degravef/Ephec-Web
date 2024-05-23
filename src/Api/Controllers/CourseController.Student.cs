@@ -6,24 +6,6 @@ namespace Api.Controllers;
 
 public partial class CourseController
 {
-    [HttpGet("UserCourses")]
-    public async Task<IActionResult> GetUserCourses()
-    {
-        try
-        {
-            return GetRoleFromBearerToken() switch
-            {
-                Role.Student => Ok(await courseService.GetAllCoursesByStudent(GetUserIdFromBearerToken()!.Value)),
-                Role.Instructor => Ok(await courseService.GetCoursesByInstructor(GetUserIdFromBearerToken()!.Value)),
-                _ => Ok(await courseService.GetAllCourses())
-            };
-        }
-        catch (Exception)
-        {
-            return Problem();
-        }
-    }
-
     [HttpGet("EnrolledCourses")]
     public async Task<IActionResult> GetEnrolledCourses()
     {

@@ -17,4 +17,5 @@ public interface ICourseService
     Task<bool> RemoveStudentToCourseAsync(int courseId, int studentId);
     Task<bool> RemoveInstructorAsync(int courseId);
     Task<IEnumerable<CourseListDto>> GetAllCoursesByStudent(int userId);
+    Task<IEnumerable<CourseListDto>> GetAllCoursesByInstructor(int userId);
 }

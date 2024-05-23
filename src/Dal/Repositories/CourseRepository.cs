@@ -60,6 +60,7 @@ public class CourseRepository(DataContext context) : ICourseRepository
                                          .Include(user => user.CoursesAsInstructor)
                                          .FirstOrDefaultAsync(user => user.Id == userId);
         if (currentUser is null) return new List<Course>();
+        Console.WriteLine(currentUser.CoursesAsInstructor.Count);
         return currentUser.CoursesAsInstructor;
     }
 }

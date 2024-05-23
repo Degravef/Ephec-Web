@@ -10,7 +10,7 @@
     <td>{{item.name}}</td>
     <td class="text-end">
       <button *ngIf="(loginService.isLoggedIn | async) && item.isEnrolled" class="btn btn-danger me-1" (click)="quit(item)">Quit</button>
-      <button *ngIf="(loginService.isLoggedIn | async) && !item.isEnrolled" class="btn btn-success me-1" (click)="enroll(item)">Enroll</button>
+      <button *ngIf="(loginService.isLoggedIn | async) && !item.isEnrolled && !((loginService.role | async) === 'Instructor' && item.hasInstructor)" class="btn btn-success me-1" (click)="enroll(item)">{{ (loginService.role | async) === 'Instructor' ? 'Teach' : 'Enroll' }}</button>
       <button class="btn btn-info" (click)="openDetailsModal(item)">Details</button>
     </td>
   </tr>
@@ -22,7 +22,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="courseDetailsModalLabel">{{selectedCourse?.name}}{{selectedCourse?.instructor ? selectedCourse.instructor : ''}}</h5>
+        <h5 class="modal-title" id="courseDetailsModalLabel">{{selectedCourse?.name}}{{selectedCourse?.instructor ? " - Instructor : " + selectedCourse.instructor : ''}}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">

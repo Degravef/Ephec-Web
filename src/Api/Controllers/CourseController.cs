@@ -7,41 +7,55 @@ namespace Api.Controllers;
 
 [ApiController]
 [Route("api/")]
-public partial class CourseController(ICourseService courseService,
+public partial class CourseController(
+    ICourseService courseService,
     ITokenService tokenService) : ControllerBase
 {
     [HttpGet("Courses")]
     public async Task<IActionResult> GetAllCourses()
     {
-         return base.Ok(await courseService.GetAllCourses());
+        return Ok(await courseService.GetAllCourses());
+    }
+
+    [HttpGet("UserCourses")]
+    public async Task<IActionResult> GetUserCourses()
+    {
+        var result = GetRoleFromBearerToken() switch
+        {
+            Role.Student => await courseService.GetAllCoursesByStudent(GetUserIdFromBearerToken()!.Value),
+            Role.Instructor => await courseService.GetAllCoursesByInstructor(GetUserIdFromBearerToken()!.Value),
+            _ => await courseService.GetAllCourses()
+        };
+        Console.WriteLine(result.Count());
+        return Ok(result);
     }
 
     [HttpGet("Course/{id:int}")]
     public async Task<IActionResult> GetCourseById(int id)
     {
-        return base.Ok(await courseService.GetCourseById(id));
+        return Ok(await courseService.GetCourseById(id));
     }
 
     [HttpPost("Course")]
     public async Task<IActionResult> CreateCourse([FromBody] CreateCourseDto courseDto)
     {
-        if (!ModelState.IsValid) return base.BadRequest(ModelState);
-        return base.Ok(await courseService.CreateCourse(courseDto));
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        return Ok(await courseService.CreateCourse(courseDto));
     }
 
     [HttpPut("Course")]
     public async Task<IActionResult> UpdateCourse([FromBody] UpdateCourseDto courseDto)
     {
-        if (!ModelState.IsValid) return base.BadRequest(ModelState);
+        if (!ModelState.IsValid) return BadRequest(ModelState);
         bool ok = await courseService.UpdateCourse(courseDto);
-        return ok ? base.Ok() : base.BadRequest();
+        return ok ? Ok() : BadRequest();
     }
 
     [HttpDelete("Course/{id:int}")]
     public async Task<IActionResult> DeleteCourse(int id)
     {
         bool ok = await courseService.DeleteCourse(id);
-        return ok ? base.Ok() : base.BadRequest();
+        return ok ? Ok() : BadRequest();
     }
 
     private string? GetBearerToken()

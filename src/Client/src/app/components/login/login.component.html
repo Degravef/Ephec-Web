@@ -4,7 +4,7 @@
 </button>
 <div *ngIf="isLoggedIn" class="dropdown">
   <span class="navbar-text dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown">
-    Welcome, {{ username }}
+    Welcome, {{loginService.role | async}} {{ username }}
   </span>
   <ul class="dropdown-menu">
     <li><a class="dropdown-item" (click)="logout()">Logout</a></li>

@@ -10,8 +10,7 @@ namespace Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class AdminController(ICourseService courseService,
-    IUserService userService,
-    ITokenService tokenService) : ControllerBase
+    IUserService userService) : ControllerBase
 {
     [HttpGet("users")]
     public async Task<IActionResult> GetUsers()

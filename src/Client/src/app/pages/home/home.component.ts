@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {AsyncPipe, NgForOf, NgIf} from "@angular/common";
 import {CourseService} from "../../services/course.service";
 import {LoginService} from "../../services/login.service";
@@ -23,21 +23,26 @@ export class HomeComponent  implements OnInit {
   selectedCourse: any;
 
   constructor(private courseService: CourseService,
-              protected loginService: LoginService) {
+              protected loginService: LoginService,
+              private cdr: ChangeDetectorRef) {
   }
 
   ngOnInit(): void {
-    console.log("HomeComponent");
-    this.loginService.isLoggedIn.subscribe(isLoggedIn => {
-      console.log("isLoggedIn : " + isLoggedIn);
-      if (!isLoggedIn) {
-        return;
-      } else {
-        this.courseService.getEnrolledCourses()
-          .subscribe(enrolledCourses => {
-            console.log(enrolledCourses);
-            this.courses = enrolledCourses
-          });
+    this.loginService.role.subscribe(role => {
+      switch (role) {
+        case 'Instructor':
+        case 'Student':
+          this.courseService.getEnrolledCourses()
+            .subscribe(data =>
+            {
+              console.log(data);
+              this.courses = data
+            });
+          break;
+        default:
+          this.courseService.getAllCourses()
+            .subscribe(data => this.courses = data);
+          break;
       }
     });
   }
@@ -59,17 +64,45 @@ export class HomeComponent  implements OnInit {
   }
 
   enroll(course: any): void {
-    this.courseService.enroll(course.id).subscribe({
-      next: (): void => {
-        course.isEnrolled = true;
+    this.loginService.role.subscribe(role => {
+      switch (role) {
+        case 'Student':
+          this.courseService.enroll(course.id).subscribe({
+            next: (): void => {
+              course.isEnrolled = true;
+            }
+          });
+          break;
+        case 'Instructor':
+          this.courseService.assign(course.id).subscribe({
+            next: (): void => {
+              course.isEnrolled = true;
+              course.hasInstructor = true;
+            }
+          });
+          break;
       }
     });
   }
 
   quit(course: any): void {
-    this.courseService.quit(course.id).subscribe({
-      next: (): void => {
-        course.isEnrolled = false;
+    this.loginService.role.subscribe(role => {
+      switch (role) {
+        case 'Student':
+          this.courseService.quitEnroll(course.id).subscribe({
+            next: (): void => {
+              course.isEnrolled = false;
+            }
+          });
+          break;
+        case 'Instructor':
+          this.courseService.quitAssign(course.id).subscribe({
+            next: (): void => {
+              course.isEnrolled = false;
+              course.hasInstructor = false;
+            }
+          });
+          break;
       }
     });
   }

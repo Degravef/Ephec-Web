@@ -1,6 +1,6 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {FormsModule} from "@angular/forms";
-import {NgIf} from "@angular/common";
+import {AsyncPipe, NgIf} from "@angular/common";
 import {Modal} from 'bootstrap';
 import {LoginService} from "../../services/login.service";
 
@@ -10,7 +10,8 @@ import {LoginService} from "../../services/login.service";
   templateUrl: './login.component.html',
   imports: [
     FormsModule,
-    NgIf
+    NgIf,
+    AsyncPipe
   ],
   styleUrls: ['./login.component.scss']
 })
@@ -27,7 +28,7 @@ export class LoginComponent implements OnInit {
   isLoggedIn: boolean = false;
   username: string = "";
 
-  constructor(private loginService: LoginService) {
+  constructor(protected loginService: LoginService) {
   }
 
   onLogin(): void {

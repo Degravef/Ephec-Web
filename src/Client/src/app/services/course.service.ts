@@ -58,7 +58,19 @@ export class CourseService {
     );
   }
 
-  quit(courseId: number) : Observable<object> {
+  assign(courseId: number) : Observable<object> {
+    return this.loginService.token.pipe(
+      first(),
+      switchMap(token => {
+        const headers = new HttpHeaders()
+          .set('Content-Type', 'application/json')
+          .set('Authorization', `Bearer ${token}`);
+        return this.httpClient.post(`${environment.baseApiUrl}/course/assign/${courseId}`, {}, { headers });
+      })
+    );
+  }
+
+  quitEnroll(courseId: number) : Observable<object> {
     return this.loginService.token.pipe(
       first(),
       switchMap(token => {
@@ -66,6 +78,18 @@ export class CourseService {
           .set('Content-Type', 'application/json')
           .set('Authorization', `Bearer ${token}`);
         return this.httpClient.delete(`${environment.baseApiUrl}/course/Enroll/${courseId}`, { headers });
+      })
+    );
+  }
+
+  quitAssign(courseId: number) : Observable<object> {
+    return this.loginService.token.pipe(
+      first(),
+      switchMap(token => {
+        const headers = new HttpHeaders()
+          .set('Content-Type', 'application/json')
+          .set('Authorization', `Bearer ${token}`);
+        return this.httpClient.delete(`${environment.baseApiUrl}/course/Assign/${courseId}`, { headers });
       })
     );
   }
