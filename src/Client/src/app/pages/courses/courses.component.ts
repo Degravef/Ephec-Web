@@ -3,6 +3,7 @@ import {AsyncPipe, NgForOf, NgIf} from "@angular/common";
 import {LoginService} from "../../services/login.service";
 import {CourseService} from "../../services/course.service";
 import {Modal} from "bootstrap";
+import {FormsModule} from "@angular/forms";
 
 @Component({
   selector: 'app-courses',
@@ -11,16 +12,20 @@ import {Modal} from "bootstrap";
   imports: [
     NgForOf,
     AsyncPipe,
-    NgIf
+    NgIf,
+    FormsModule
   ],
   styleUrls: ['./courses.component.scss']
 })
 export class CoursesComponent implements OnInit {
 
   @ViewChild('courseDetailsModal') detailsModal!: ElementRef;
+  @ViewChild('createCourseModal') createModal!: ElementRef;
+  @ViewChild('editCourseModal') editModal!: ElementRef;
 
   protected courses: any;
-  selectedCourse: any;
+  selectedCourse: any = {};
+  newCourse: any = {};
 
   constructor(private courseService: CourseService,
               protected loginService: LoginService,
@@ -33,8 +38,7 @@ export class CoursesComponent implements OnInit {
         case 'Instructor':
         case 'Student':
           this.courseService.getUserCourses()
-            .subscribe(data =>
-            {
+            .subscribe(data => {
               console.log(data);
               this.courses = data
             });
@@ -107,22 +111,90 @@ export class CoursesComponent implements OnInit {
     });
   }
 
-  isEnrollButtonVisible(item: any): boolean {
-    let isVisible = false;
-    this.loginService.isLoggedIn.subscribe(isLoggedIn => {
-      this.loginService.role.subscribe(role => {
-        if (!isLoggedIn) {
-          isVisible = false;
-          return;
+  openCreateCourseModal() {
+    const modalElement = this.createModal.nativeElement;
+    let modalInstance: Modal | null = Modal.getInstance(modalElement);
+    if (!modalInstance) {
+      modalInstance = new Modal(modalElement);
+    }
+    if (modalInstance) {
+      modalInstance.show();
+    }
+  }
+
+  createCourse() {
+    this.courseService.createCourse(this.newCourse).subscribe({
+      next: (data): void => {
+        this.courses.push(data);
+        this.newCourse = {};
+        const modalElement = this.createModal.nativeElement;
+        const modalInstance: Modal | null = Modal.getInstance(modalElement);
+        if (modalInstance) {
+          modalInstance.hide();
         }
-        if (item.isEnrolled) {
-          isVisible = false;
-          return;
-        }
-        isVisible = !(role === 'Instructor' && item.hasInstructor);
-      });
+      },
+      error: (err): void => {
+        console.error('Error creating course:', err);
+      }
     });
-    return isVisible;
+  }
+
+  deleteCourse(courseId: number) {
+    this.courseService.deleteCourse(courseId).subscribe({
+      next: (): void => {
+        this.courses = this.courses.filter(
+          (course: { id: number; }) => course.id !== courseId);
+        const modalElement = this.detailsModal.nativeElement;
+        const modalInstance: Modal | null = Modal.getInstance(modalElement);
+        if (modalInstance) {
+          modalInstance.hide();
+        }
+      },
+      error: (err): void => {
+        console.error('Error deleting course:', err);
+      }
+    });
+  }
+
+  openEditCourseModal() {
+    const detailsModalElement = this.detailsModal.nativeElement;
+    const detailsModalInstance: Modal | null = Modal.getInstance(detailsModalElement);
+    if (detailsModalInstance) {
+      detailsModalInstance.hide();
+    }
+    const editModalElement = this.editModal.nativeElement;
+    let editModalInstance: Modal | null = Modal.getInstance(editModalElement);
+    if (!editModalInstance) {
+      editModalInstance = new Modal(editModalElement);
+    }
+    if (editModalInstance) {
+      editModalInstance.show();
+    }
+  }
+
+  editCourse() {
+    console.log(this.selectedCourse);
+    this.courseService.updateCourse(this.selectedCourse).subscribe({
+      next: (): void => {
+        const modalElement = this.editModal.nativeElement;
+        const modalInstance: Modal | null = Modal.getInstance(modalElement);
+        if (modalInstance) {
+          modalInstance.hide();
+        }
+        const index = this.courses.findIndex((course: any) => course.id === this.selectedCourse.id);
+        if (index !== -1) {
+          this.courses[index] = this.selectedCourse;
+        }
+      },
+      error: (err): void => {
+        console.error('Error deleting course:', err);
+      }
+    });
+    const modalElement = this.createModal.nativeElement;
+    const modalInstance: Modal | null = Modal.getInstance(modalElement);
+    if (modalInstance) {
+      modalInstance.hide();
+    }
   }
 }
 

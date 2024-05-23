@@ -11,6 +11,7 @@ public partial class CourseController
         Role? role = GetRoleFromBearerToken();
         int? instructorId = GetUserIdFromBearerToken();
         if (role != Role.Instructor || instructorId is null) return Unauthorized();
+        if (!ModelState.IsValid) return BadRequest(ModelState);
         return await courseService.AssignInstructorAsync(courseId, instructorId.Value) ? Ok() : BadRequest();
     }
 
@@ -20,6 +21,7 @@ public partial class CourseController
         Role? role = GetRoleFromBearerToken();
         int? instructorId = GetUserIdFromBearerToken();
         if (role != Role.Instructor || instructorId is null) return Unauthorized();
+        if (!ModelState.IsValid) return BadRequest(ModelState);
         // instructors can only remove instructor from their own courses
         if ((await courseService.GetCoursesByInstructor(instructorId.Value)).All(x => x.Id != courseId)) return BadRequest();
         return await courseService.RemoveInstructorAsync(courseId) ? Ok() : BadRequest();

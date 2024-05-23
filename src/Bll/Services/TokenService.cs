@@ -37,12 +37,25 @@ public class TokenService(IJwtConfig config) : ITokenService
     public bool ValidateToken(string jwtToken)
     {
         JwtSecurityTokenHandler tokenHandler = new();
-        JwtSecurityToken? token = tokenHandler.ReadJwtToken(jwtToken);
-        if (token is null ||
-            !token.Header.Alg.Equals(Algorithm) ||
-            !token.SigningCredentials.Key.Equals(Encoding.UTF8.GetBytes(config.Secret!))) return false;
-        if (token.ValidTo < DateTime.UtcNow) return false;
-        return true;
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = config.Issuer,
+            ValidAudience = config.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.Secret!)),
+        };
+        try
+        {
+            tokenHandler.ValidateToken(jwtToken, validationParameters, out _);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     public string? GetClaimValue(string jwtToken, string claimType)

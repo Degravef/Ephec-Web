@@ -14,4 +14,5 @@ public interface ITokenService
 
     string CreateToken(User user);
     string? GetClaimValue(string jwtToken, string claimType);
+    bool ValidateToken(string s);
 }

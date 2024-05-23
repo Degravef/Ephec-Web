@@ -93,4 +93,42 @@ export class CourseService {
       })
     );
   }
+
+  createCourse(newCourse: any) {
+    return this.loginService.token.pipe(
+      first(),
+      switchMap(token => {
+        const headers = new HttpHeaders()
+          .set('Content-Type', 'application/json')
+          .set('Authorization', `Bearer ${token}`);
+        return this.httpClient.post(`${environment.baseApiUrl}/Course`, newCourse, { headers });
+      })
+    )
+  }
+
+  updateCourse(course: any) {
+    return this.loginService.token.pipe(
+      first(),
+      switchMap(token => {
+        const headers = new HttpHeaders()
+          .set('Content-Type', 'application/json')
+          .set('Authorization', `Bearer ${token}`);
+        return this.httpClient.put(`${environment.baseApiUrl}/Course`, course, { headers });
+      })
+    )
+  }
+
+  deleteCourse(courseId: number) {
+    return this.loginService.token.pipe(
+      first(),
+      switchMap(token => {
+        const headers = new HttpHeaders()
+          .set('Content-Type', 'application/json')
+          .set('Authorization', `Bearer ${token}`);
+        console.log(`courseId type: ${typeof courseId}, value: ${courseId}`);
+        console.log(`${environment.baseApiUrl}/Course/${courseId}`);
+        return this.httpClient.delete(`${environment.baseApiUrl}/Course/${courseId}`, { headers });
+      })
+    )
+  }
 }
