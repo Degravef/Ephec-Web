@@ -9,6 +9,7 @@ public static class InjectServices
     public static IServiceCollection AddDalServices(this IServiceCollection services)
     {
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ICourseRepository, CourseRepository>();
         return services;
     }
 }

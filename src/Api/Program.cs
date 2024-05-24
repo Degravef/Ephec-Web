@@ -1,8 +1,8 @@
-using Bll.Extensions;
+using Bll.Config;
+using Bll.Interfaces;
 using Dal;
 using Dal.Extensions;
-using Dal.Interfaces;
-using Dal.Models;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -17,11 +17,16 @@ builder.Services.AddDalServices();
 var jwtConfig = new JwtConfig();
 builder.Configuration.Bind("JwtConfig", jwtConfig);
 builder.Services.AddSingleton<IJwtConfig>(jwtConfig);
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+builder.Services.AddCors(options =>
+    options.AddPolicy("AllowAll",
+        b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 
 WebApplication app = builder.Build();
 
@@ -32,6 +37,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 
 app.MapControllers();

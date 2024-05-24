@@ -2,7 +2,7 @@ using Bll.Interfaces;
 using Bll.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Bll.Extensions;
+namespace Bll.Config;
 
 public static class InjectServices
 {
@@ -10,6 +10,7 @@ public static class InjectServices
     {
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<ICourseService, CourseService>();
         return services;
     }
 }

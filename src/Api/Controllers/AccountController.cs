@@ -13,12 +13,11 @@ public class AccountController(IUserService userService) : ControllerBase
     {
         try
         {
-            return this.Ok(await userService.RegisterAsync(userRegister));
+            return base.Ok(await userService.RegisterAsync(userRegister));
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            Console.WriteLine(e);
-            return this.Problem();
+            return base.Problem();
         }
     }
 
@@ -27,15 +26,15 @@ public class AccountController(IUserService userService) : ControllerBase
     {
         try
         {
-            return this.Ok(await userService.LoginAsync(userLogin));
+            return base.Ok(await userService.LoginAsync(userLogin));
         }
         catch (UnauthorizedAccessException)
         {
-            return this.Unauthorized();
+            return base.Unauthorized();
         }
         catch (Exception)
         {
-            return this.Problem();
+            return base.Problem();
         }
     }
 }

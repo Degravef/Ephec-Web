@@ -3,25 +3,23 @@ using System.Security.Authentication;
 using System.Security.Claims;
 using System.Text;
 using Bll.Interfaces;
-using Dal.Interfaces;
 using Dal.Models;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 
 namespace Bll.Services;
 
 public class TokenService(IJwtConfig config) : ITokenService
 {
-    public static class Claims
-    {
-        public const string Name = "unique_name";
-        public const string Role = "Role";
-    }
+    private const string Algorithm = SecurityAlgorithms.HmacSha256;
+
+    private readonly SigningCredentials _credentials = new(
+        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.Secret!)), Algorithm);
 
     public string CreateToken(User user)
     {
         DateTime notBefore = DateTime.UtcNow;
         DateTime expires = notBefore.AddMinutes(config.AccessExpirationMinutes);
-        SigningCredentials credentials = GetSigningCredentials();
         JwtSecurityTokenHandler tokenHandler = new();
         ClaimsIdentity claims = GetClaimsIdentity(user);
         JwtSecurityToken? token = tokenHandler.CreateJwtSecurityToken(
@@ -30,13 +28,37 @@ public class TokenService(IJwtConfig config) : ITokenService
             subject: claims,
             notBefore: notBefore,
             expires: expires,
-            signingCredentials: credentials
+            signingCredentials: _credentials
         );
         if (token is not null) return tokenHandler.WriteToken(token);
         throw new AuthenticationException("Token could not be created");
     }
 
-    public object? GetClaimValue(string jwtToken, string claimType)
+    public bool ValidateToken(string jwtToken)
+    {
+        JwtSecurityTokenHandler tokenHandler = new();
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = config.Issuer,
+            ValidAudience = config.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.Secret!)),
+        };
+        try
+        {
+            tokenHandler.ValidateToken(jwtToken, validationParameters, out _);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public string? GetClaimValue(string jwtToken, string claimType)
     {
         JwtSecurityTokenHandler tokenHandler = new();
         JwtSecurityToken? token = tokenHandler.ReadJwtToken(jwtToken);
@@ -47,22 +69,10 @@ public class TokenService(IJwtConfig config) : ITokenService
 
     private static ClaimsIdentity GetClaimsIdentity(User user)
     {
-        List<Claim> claims =
-        [
-            new Claim(Claims.Name, user.Username)
-        ];
-        if (user.Role is not null)
-        {
-            claims.Add(new Claim(Claims.Role, user.Role.ToString()!));
-        }
-
-        return new ClaimsIdentity(claims);
-    }
-
-    private SigningCredentials GetSigningCredentials()
-    {
-        return new SigningCredentials(
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.Secret)),
-            SecurityAlgorithms.HmacSha256);
+        return new ClaimsIdentity([
+            new Claim(ITokenService.Claims.Id, user.Id.ToString()),
+            new Claim(ITokenService.Claims.Name, user.Username),
+            new Claim(ITokenService.Claims.Role, user.Role.ToString())
+        ]);
     }
 }

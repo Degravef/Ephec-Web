@@ -6,38 +6,48 @@ namespace Dal.Repositories;
 
 public class UserRepository(DataContext context) : IUserRepository
 {
-    public async Task<User?> GetById(int id)
+    public async Task<IEnumerable<User>> GetAllAsync()
+    {
+        return await context.Users.ToListAsync();
+    }
+
+    public async Task<User?> GetByIdAsync(int id)
     {
         return await context.Users.FindAsync(id);
     }
 
-    public async Task<User?> GetByUsername(string username)
+    public async Task<User?> GetByUsernameAsync(string username)
     {
         return await context.Users
-            .FirstOrDefaultAsync(u => u.Username == username);
+            .FirstOrDefaultAsync(u => u.Username.ToLower() == username.ToLower());
     }
 
-    public async Task<User> Create(User user)
+    public async Task<User> CreateAsync(User user)
     {
         await context.Users.AddAsync(user);
         await context.SaveChangesAsync();
         return user;
     }
 
-    public async Task<User> Update(User user)
+    public async Task<bool> UpdateAsync(User user)
     {
         User? existingUser = await context.Users.FindAsync(user.Id);
-        if (existingUser is null) return user;
+        if (existingUser is null) return false;
         context.Entry(existingUser).CurrentValues.SetValues(user);
-        await context.SaveChangesAsync();
-        return user;
+        return await context.SaveChangesAsync() > 0;
     }
 
-    public async Task Delete(int id)
+    public async Task<bool> DeleteAsync(User user)
     {
-        User? existingUser = await context.Users.FindAsync(id);
-        if (existingUser is null) return;
-        context.Users.Remove(existingUser);
-        await context.SaveChangesAsync();
+        User? entity = await context.Users.FirstOrDefaultAsync(x => x.Id == user.Id);
+        if (entity is not null) return await DeleteAsync(entity);
+        return false;
+    }
+
+    public async Task<bool> DeleteByIdAsync(int id)
+    {
+        User? entity = await context.Users.FirstOrDefaultAsync(x => x.Id == id);
+        if (entity is not null) return await DeleteAsync(entity);
+        return false;
     }
 }

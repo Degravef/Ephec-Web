@@ -1,0 +1,40 @@
+@use "sass:map";
+
+$light-theme: (
+  background: #fff,
+  text-color: #333,
+  link-color: #1a0dab
+);
+
+$dark-theme: (
+  background: #121212,
+  text-color: #fff,
+  link-color: #4e9af1
+);
+
+@mixin apply-theme($theme) {
+  background-color: map.get($theme, "background");
+  color: map.get($theme, "text-color");
+  a {
+    color: map.get($theme, "link-color");
+  }
+}
+body {
+  @include apply-theme($light-theme);
+
+  //@media (prefers-color-scheme: dark) {
+  //  @include apply-theme($dark-theme);
+  //}
+  //
+  //@media (prefers-color-scheme: light) {
+  //  @include apply-theme($light-theme);
+  //}
+}
+
+body {
+  font-size: large;
+}
+
+.banner {
+  font-size: xxx-large;
+}
