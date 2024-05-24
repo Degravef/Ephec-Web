@@ -23,13 +23,18 @@ export class CoursesComponent implements OnInit {
   @ViewChild('createCourseModal') createModal!: ElementRef;
   @ViewChild('editCourseModal') editModal!: ElementRef;
 
-  protected courses: any;
-  selectedCourse: any = {};
-  newCourse: any = {};
+  protected courses: any[] = [];
+  protected filterText: string = '';
+  protected selectedCourse: any = {};
+  protected newCourse: any = {};
 
   constructor(private courseService: CourseService,
               protected loginService: LoginService,
               private cdr: ChangeDetectorRef) {
+  }
+
+  filteredCourses() {
+    return this.courses.filter(course => course.name.toLowerCase().includes(this.filterText.toLowerCase()));
   }
 
   ngOnInit(): void {
@@ -38,14 +43,14 @@ export class CoursesComponent implements OnInit {
         case 'Instructor':
         case 'Student':
           this.courseService.getUserCourses()
-            .subscribe(data => {
+            .subscribe((data: any) => {
               console.log(data);
               this.courses = data
             });
           break;
         default:
           this.courseService.getAllCourses()
-            .subscribe(data => this.courses = data);
+            .subscribe((data: any) => this.courses = data);
           break;
       }
     });

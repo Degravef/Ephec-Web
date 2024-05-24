@@ -1,3 +1,8 @@
+<div class="mb-3">
+  <label for="filterCourses" class="form-label">Filter Courses</label>
+  <input type="text" class="form-control" id="filterCourses" [(ngModel)]="filterText" placeholder="Enter course name">
+</div>
+
 <table class="table table-striped">
   <thead>
   <tr>
@@ -8,7 +13,7 @@
   </tr>
   </thead>
   <tbody>
-  <tr *ngFor="let item of courses">
+  <tr *ngFor="let item of filteredCourses()">
     <td>{{item.name}}</td>
     <td class="text-end">
       <button *ngIf="(loginService.isLoggedIn | async) && item.isEnrolled" class="btn btn-danger me-1" (click)="quit(item)">Quit</button>
