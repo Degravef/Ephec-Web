@@ -3,6 +3,7 @@
   <tr>
     <th>Username</th>
     <th>Role</th>
+    <th>Courses</th>
   </tr>
   </thead>
   <tbody>
@@ -12,6 +13,17 @@
       <select class="form-control" [(ngModel)]="user.role" (ngModelChange)="changeRole(user.id, user.role)">
         <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
       </select>
+    </td>
+    <td *ngIf="user.role !== 'Admin'">
+      <div (click)="toggleCoursesDropdown(user)" class="dropdown-toggle">
+        Courses
+      </div>
+      <div *ngIf="user.showCoursesDropdown">
+        <div *ngFor="let course of allCourses">
+          <input type="checkbox" [checked]="isCourseSelected(user, course)" (change)="toggleCourseSelection(user, course, $event)">
+          {{ course.name }}
+        </div>
+      </div>
     </td>
   </tr>
   </tbody>

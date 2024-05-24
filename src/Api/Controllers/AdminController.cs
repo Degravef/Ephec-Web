@@ -40,6 +40,24 @@ public class AdminController(
         return b ? base.Ok() : base.BadRequest();
     }
 
+    [HttpGet("enrolledCourses/{studentId:int}")]
+    public async Task<IActionResult> GetEnrolledCourses(int studentId)
+    {
+        if (GetRoleFromBearerToken() != Role.Admin) return Unauthorized();
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (await userService.GetRoleAsync(studentId)!= Role.Student) return BadRequest();
+        return Ok(await courseService.GetCoursesByStudent(studentId));
+    }
+
+    [HttpGet("assignedCourses/{instructorId:int}")]
+    public async Task<IActionResult> GetAssignedCourses(int instructorId)
+    {
+        if (GetRoleFromBearerToken() != Role.Admin) return Unauthorized();
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (await userService.GetRoleAsync(instructorId)!= Role.Instructor) return BadRequest();
+        return Ok(await courseService.GetCoursesByInstructor(instructorId));
+    }
+
     [HttpPost("enroll")]
     public async Task<IActionResult> EnrollStudentToCourse([FromBody] EnrollDto dto)
     {
