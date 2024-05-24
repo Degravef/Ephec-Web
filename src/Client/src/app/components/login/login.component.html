@@ -38,6 +38,7 @@
                 <label for="password" class="form-label">Password</label>
                 <input type="password" class="form-control" id="password" [(ngModel)]="logPassword" name="password" required>
               </div>
+              <div *ngIf="loginError" class="alert alert-danger">{{ loginError }}</div>
               <button type="submit" class="btn btn-primary">Login</button>
             </form>
           </div>
@@ -52,9 +53,10 @@
                 <input type="password" class="form-control" id="regPassword" [(ngModel)]="regPassword" name="regPassword" required>
               </div>
               <div class="mb-3">
-                <label for="regPassword" class="form-label">Verify Password</label>
+                <label for="verifyPassword" class="form-label">Verify Password</label>
                 <input type="password" class="form-control" id="verifyPassword" [(ngModel)]="verifyPassword" name="regPassword" required>
               </div>
+              <div *ngIf="registerError" class="alert alert-danger">{{ registerError }}</div>
               <button type="submit" class="btn btn-primary">Register</button>
             </form>
           </div>

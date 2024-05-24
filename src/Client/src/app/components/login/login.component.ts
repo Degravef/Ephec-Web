@@ -24,6 +24,8 @@ export class LoginComponent implements OnInit {
   protected regUsername: string = "";
   protected regPassword: string = "";
   protected verifyPassword: string = "";
+  protected loginError: string = "";
+  protected registerError: string = "";
 
   isLoggedIn: boolean = false;
   username: string = "";
@@ -44,13 +46,17 @@ export class LoginComponent implements OnInit {
         }
       },
       error: (err): void => {
+        this.loginError = 'Login failed. Please check your username and password.';
         console.log(err);
       }
     });
   }
 
   onRegister(): void {
-    if (this.regPassword !== this.verifyPassword) return;
+    if (this.regPassword !== this.verifyPassword) {
+      this.registerError = 'Passwords do not match.';
+      return;
+    }
     this.loginService.register(this.regUsername, this.regPassword).subscribe({
       next: () => {
         const modalElement = this.loginModal.nativeElement;
@@ -63,6 +69,7 @@ export class LoginComponent implements OnInit {
         }
       },
       error: (err) => {
+        this.registerError = 'Registration failed. Please try again or try a different username.';
         console.log(err);
       }
     });
